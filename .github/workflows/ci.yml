@@ -121,7 +121,7 @@ jobs:
           bundle exec rspec --format progress --format json --out tmp/rspec.json
       - name: Keep structured results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rspec-${{ matrix.database }}
           path: tmp/rspec.json
