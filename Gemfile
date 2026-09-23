@@ -28,7 +28,7 @@ gem "pagy", "~> 43.6"
 gem "view_component", "~> 4.0"
 
 # External AI/OCR and cloud object storage adapters
-gem "faraday", "~> 2.13"
+gem "faraday", "~> 2.14"
 gem "faraday-multipart", "~> 1.1"
 gem "aws-sdk-s3", require: false
 gem "rubyzip", "~> 3.0", require: "zip"
