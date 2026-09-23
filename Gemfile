@@ -31,7 +31,7 @@ gem "view_component", "~> 4.0"
 gem "faraday", "~> 2.13"
 gem "faraday-multipart", "~> 1.1"
 gem "aws-sdk-s3", require: false
-gem "rubyzip", "~> 3.0", require: "zip"
+gem "rubyzip", "~> 3.7", require: "zip"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
