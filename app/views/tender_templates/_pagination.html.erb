@@ -1,0 +1,7 @@
+<div class="mt-5 flex items-center justify-between text-sm text-slate-500">
+  <p>共 <%= @total %> 项 · 第 <%= @page %> 页</p>
+  <div class="flex gap-4">
+    <% if @page > 1 %><%= link_to "上一页", url_for(params.permit(:q, :category, :method).to_h.merge(page: @page - 1)), class: "font-semibold text-cyan-700" %><% end %>
+    <% if @total > @page * 30 %><%= link_to "下一页", url_for(params.permit(:q, :category, :method).to_h.merge(page: @page + 1)), class: "font-semibold text-cyan-700" %><% end %>
+  </div>
+</div>

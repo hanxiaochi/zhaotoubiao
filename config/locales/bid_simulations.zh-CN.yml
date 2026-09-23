@@ -1,0 +1,17 @@
+zh-CN:
+  activerecord:
+    models:
+      bid_simulation: 投标模拟审核
+      bid_score: 评分明细
+    attributes:
+      bid_simulation:
+        title: 审核批次名称
+        source: 来源文件
+        source_text: 投标全文
+        source_title: 来源名称
+        confirmed_complete: 全文完整性确认
+        rubric: 评分量表
+        basis_sha256: 依据指纹
+        total_score: 汇总分
+      bid_score:
+        scoring_rule: 评分标准原文

@@ -1,0 +1,7 @@
+<%= form_with model: role, class: "space-y-6" do |form| %>
+  <%= render "shared/errors", record: role %>
+  <%= hidden_field_tag "role[permissions][]", "", id: nil %>
+  <div class="grid gap-5 md:grid-cols-2"><div><%= form.label :code, "角色代码", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :code, required: true, readonly: role.persisted?, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5 disabled:bg-slate-50" %></div><div><%= form.label :name, "角色名称", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :name, required: true, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div></div>
+  <fieldset><legend class="text-sm font-semibold">权限</legend><div class="mt-3 grid gap-3 sm:grid-cols-2"><% Role::AVAILABLE_PERMISSIONS.each do |value, label| %><label class="flex items-start gap-3 rounded-xl border border-slate-200 p-3 text-sm"><%= check_box_tag "role[permissions][]", value, role.permissions.include?(value), class: "mt-0.5 size-4 rounded" %><span><span class="font-medium"><%= label %></span><span class="mt-1 block text-xs text-slate-400"><%= value %></span></span></label><% end %></div></fieldset>
+  <div class="flex justify-end gap-3 border-t border-slate-100 pt-5"><%= link_to "取消", roles_path, class: "rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600" %><%= form.submit "保存角色", class: "cursor-pointer rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white" %></div>
+<% end %>

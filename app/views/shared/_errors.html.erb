@@ -1,0 +1,10 @@
+<% if record.errors.any? %>
+  <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+    <p class="font-semibold">请检查以下内容：</p>
+    <ul class="mt-2 list-disc space-y-1 pl-5">
+      <% record.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

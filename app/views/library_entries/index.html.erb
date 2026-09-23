@@ -1,0 +1,15 @@
+<% content_for :page_title, "企业资料库" %>
+<div class="flex items-end justify-between"><div><h1 class="text-2xl font-bold">企业资料库</h1><p class="mt-2 text-sm text-slate-500">统一维护企业资质和项目案例；投标引用保留当时版本，真实性与使用授权须人工核验。</p></div><%= link_to "新增资料", new_library_entry_path, class: "rounded-md bg-slate-900 px-4 py-2 text-sm text-white" if policy(LibraryEntry).create? %></div>
+<%= form_with url: library_entries_path, method: :get, class: "desktop-toolbar" do |f| %>
+  <%= f.search_field :q, value: params[:q], placeholder: "名称、单位或证书编号", aria: { label: "搜索资料" }, class: "rounded-md border border-slate-300 px-3 py-2" %>
+  <%= f.select :kind, options_for_select([["全部类别", ""]] + LibraryEntry::KINDS.map { |k,v| [v,k] }, params[:kind]), {}, aria: { label: "资料类别" }, class: "rounded-md border border-slate-300 px-3 py-2" %>
+  <%= f.select :status, options_for_select([["全部状态", ""], ["使用中", "active"], ["已归档", "archived"]], params[:status]), {}, aria: { label: "资料状态" }, class: "rounded-md border border-slate-300 px-3 py-2" %>
+  <label><%= f.check_box :expired, checked: params[:expired] == "1" %> 仅看已过期</label>
+  <%= f.submit "查询", class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-white" %>
+  <%= link_to "重置", library_entries_path %>
+<% end %>
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 bg-white"><table class="ledger-table"><caption class="sr-only">企业资质与案例资料</caption><thead><tr><th scope="col">资料名称 / 单位</th><th scope="col">类别</th><th scope="col">编号</th><th scope="col">有效期</th><th scope="col">状态 / 版本</th><th scope="col">操作</th></tr></thead><tbody>
+<% @entries.each do |entry| %><tr><td><p class="font-semibold"><%= entry.title %></p><p class="text-xs text-slate-500"><%= entry.organization %></p></td><td><%= LibraryEntry::KINDS.fetch(entry.kind) %></td><td><%= entry.reference_number.presence || "—" %></td><td><%= entry.expires_on || "未设置" %><% if entry.expired? %><span class="ml-2 text-rose-700">已过期</span><% end %></td><td><%= status_badge(entry.status) %> · v<%= entry.revision_number %></td><td><%= link_to "查看", entry, class: "font-semibold text-cyan-700" %></td></tr><% end %>
+<% if @entries.empty? %><tr><td colspan="6" class="text-center text-slate-500">没有符合条件的资料。</td></tr><% end %>
+</tbody></table></div>
+<nav aria-label="资料库分页" class="mt-4 flex justify-between text-sm"><span>共 <%= @total %> 条 · 第 <%= @page %> 页</span><div class="flex gap-4"><% if @page > 1 %><%= link_to "上一页", library_entries_path(request.query_parameters.merge(page: @page - 1)) %><% end %><% if @page * 30 < @total %><%= link_to "下一页", library_entries_path(request.query_parameters.merge(page: @page + 1)) %><% end %></div></nav>

@@ -1,0 +1,9 @@
+<fieldset class="grid gap-5 lg:grid-cols-2">
+  <legend class="mb-4 font-bold">投标专项清单</legend>
+  <% BidAnalysis::REVIEW_SECTIONS.each do |field, title| %>
+    <div>
+      <%= form.label "#{field}_text", "#{title}（每行一项）", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.text_area "#{field}_text", rows: 5, placeholder: "注明文件章节/页码和原文依据；缺失时不要猜测。", class: "w-full rounded-lg border border-slate-300 px-3.5 py-3 text-sm leading-6" %>
+    </div>
+  <% end %>
+</fieldset>

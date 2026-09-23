@@ -1,0 +1,28 @@
+[Unit]
+Description=Donghua Solid Queue Worker and Scheduler
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=donghua
+Group=donghua
+WorkingDirectory=/srv/donghua/current
+Environment=RAILS_ENV=production
+Environment=PATH=/opt/donghua/ruby/bin:/usr/bin:/bin
+Environment=BUNDLE_PATH=/srv/donghua/shared/bundle
+EnvironmentFile=/etc/donghua/platform.env
+ExecStart=/opt/donghua/ruby/bin/bundle exec ruby bin/jobs start
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=180
+KillMode=mixed
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/donghua/shared
+
+[Install]
+WantedBy=multi-user.target

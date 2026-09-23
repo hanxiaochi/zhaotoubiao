@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+set -eu
+cd "$(dirname "$0")/.."
+export RAILS_ENV="${RAILS_ENV:-development}"
+if [ "$RAILS_ENV" != "development" ]; then
+  echo "Use the production deployment procedure, not bin/dev." >&2
+  exit 1
+fi
+bundle exec rails db:prepare
+bundle exec rails tailwindcss:build
+css_pid=""
+scheduler_pid=""
+web_pid=""
+cleanup() {
+  for child in "$web_pid" "$scheduler_pid" "$css_pid"; do
+    if [ -n "$child" ]; then kill "$child" 2>/dev/null || true; fi
+  done
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM
+bundle exec rails tailwindcss:watch &
+css_pid=$!
+bundle exec rails runner script/local_scheduler.rb &
+scheduler_pid=$!
+bundle exec rails server -b 127.0.0.1 -p "${PORT:-3000}" "$@" &
+web_pid=$!
+wait "$web_pid"

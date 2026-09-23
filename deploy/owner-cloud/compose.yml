@@ -1,0 +1,131 @@
+name: donghua-owner
+
+x-app: &app
+  image: donghua-owner-web:local
+  build:
+    context: ../..
+  env_file: ${OWNER_ENV_FILE:-.env}
+  environment: &environment
+    RAILS_ENV: production
+    ALLOW_HTTP_DEMO: 'true'
+    DEMO_DATA_ONLY: 'true'
+    DATABASE_URL: postgresql://donghua:${DB_PASSWORD:?Configure first}@db/donghua
+    QUEUE_DATABASE_URL: postgresql://donghua:${DB_PASSWORD}@db/donghua_queue
+    CACHE_DATABASE_URL: postgresql://donghua:${DB_PASSWORD}@db/donghua_cache
+    CABLE_DATABASE_URL: postgresql://donghua:${DB_PASSWORD}@db/donghua_cable
+    ACTIVE_STORAGE_SERVICE: cloud
+    S3_REGION: us-east-1
+    S3_BUCKET: donghua-private
+    S3_ACCESS_KEY_ID: ${STORAGE_USER}
+    S3_SECRET_ACCESS_KEY: ${STORAGE_PASSWORD}
+    S3_ENDPOINT: http://storage:9000
+    S3_FORCE_PATH_STYLE: 'true'
+    OCR_WORKER_URL: http://127.0.0.1:8100
+    WEB_CONCURRENCY: '0'
+    RAILS_MAX_THREADS: '3'
+    JOB_CONCURRENCY: '1'
+    JOB_THREADS: '1'
+    JOB_DB_POOL: '5'
+    RAILS_LOG_LEVEL: warn
+    MALLOC_CONF: dirty_decay_ms:1000,narenas:2,background_thread:true
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: '3'}
+
+services:
+  db:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: donghua
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: donghua
+    command: [postgres, -c, shared_buffers=96MB, -c, work_mem=2MB, -c, maintenance_work_mem=32MB, -c, max_connections=60]
+    mem_limit: 384m
+    volumes: [database:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U donghua -d donghua']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+  storage:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: [server, /data, --console-address, ':9001']
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_USER}
+      MINIO_ROOT_PASSWORD: ${STORAGE_PASSWORD}
+      GOMEMLIMIT: 200MiB
+    mem_limit: 256m
+    volumes: [documents:/data]
+    restart: unless-stopped
+  web:
+    <<: *app
+    command: [bundle, exec, puma, -C, config/puma.rb]
+    mem_limit: 640m
+    cpus: 1.5
+    depends_on:
+      db: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://127.0.0.1:3000/up]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  jobs:
+    <<: *app
+    network_mode: service:web
+    command: [ruby, bin/jobs]
+    mem_limit: 768m
+    cpus: 1
+    depends_on:
+      web: {condition: service_healthy}
+    restart: unless-stopped
+  ocr:
+    image: donghua-owner-ocr:local
+    network_mode: service:web
+    depends_on:
+      web: {condition: service_healthy}
+    build:
+      context: ../../services/ocr_worker
+      dockerfile: ../../deploy/owner-cloud/Dockerfile.ocr
+    environment:
+      OCR_WORKER_TOKEN: ${OCR_WORKER_TOKEN}
+      OCR_MODEL_DIR: /worker/models
+      OCR_GPU: 'false'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    mem_limit: 1408m
+    cpus: 1.5
+    volumes: [ocr_models:/worker/models]
+    restart: unless-stopped
+  proxy:
+    image: caddy:2
+    ports: ['${BIND_ADDRESS:-0.0.0.0}:${HTTP_PORT:-9052}:80']
+    volumes: ['./Caddyfile:/etc/caddy/Caddyfile:ro']
+    mem_limit: 64m
+    depends_on:
+      web: {condition: service_healthy}
+    restart: unless-stopped
+  migrate:
+    <<: *app
+    command: [ruby, bin/rails, db:prepare]
+    mem_limit: 640m
+    profiles: [tools]
+  storage-init:
+    <<: *app
+    command: [ruby, -rbundler/setup, -raws-sdk-s3, deploy/owner-cloud/storage-init.rb]
+    mem_limit: 192m
+    profiles: [tools]
+  seed-demo:
+    <<: *app
+    command: [ruby, bin/rails, runner, deploy/owner-cloud/seed-demo.rb]
+    mem_limit: 640m
+    profiles: [tools]
+
+volumes:
+  database:
+  documents:
+  ocr_models:

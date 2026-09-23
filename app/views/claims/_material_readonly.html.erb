@@ -1,0 +1,13 @@
+<div class="px-5 py-4">
+  <div class="flex items-center justify-between gap-3"><h3 class="font-semibold"><%= material.material_type %></h3><span class="text-xs text-slate-500">只读核验记录</span></div>
+  <dl class="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+    <div><dt class="text-slate-500">收件状态 / 核验人</dt><dd><%= material.present? ? "已提供" : "未提供" %> · <%= material.checked_by&.name || "尚未人工核验" %></dd></div>
+    <div><dt class="text-slate-500">来源原件</dt><dd><% if material.project_document %><%= link_to material.project_document.original_filename, project_project_document_path(@claim.project, material.project_document), class: "text-cyan-700 underline" %><% else %>未关联<% end %> <%= material.page_reference %></dd></div>
+    <% { material_requirement: "材料", signature_requirement: "签字", seal_requirement: "盖章", authorization_requirement: "授权" }.each do |field, label| %>
+      <div><dt class="text-slate-500"><%= label %>适用规则</dt><dd><%= ClaimMaterial::REQUIREMENT_OPTIONS.to_h.invert[material.public_send(field)] %></dd></div>
+    <% end %>
+  </dl>
+  <% if material.requirement_note.present? %><p class="mt-3 text-sm text-slate-600">适用依据：<%= material.requirement_note %></p><% end %>
+  <p class="mt-2 text-sm text-slate-600"><%= material.note %></p>
+  <% if material.review_issues.any? %><ul class="mt-3 list-disc pl-4 text-xs leading-6 text-amber-800"><% material.review_issues.each do |issue| %><li><%= issue %></li><% end %></ul><% else %><p class="mt-3 text-xs text-emerald-700">当前材料核验项已满足（不代表最终债权认定）</p><% end %>
+</div>

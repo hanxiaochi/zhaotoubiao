@@ -1,0 +1,34 @@
+<% content_for :title, "工作看板｜江苏东华 AI 工作平台" %>
+<% content_for :page_title, "工作看板" %>
+
+<div class="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+  <div><p class="text-sm text-slate-500"><%= l(Date.current, format: :default) %></p><h1 class="mt-1 text-2xl font-bold tracking-tight">欢迎回来，<%= current_user.name %></h1><p class="mt-2 text-sm text-slate-500">这里汇总您有权访问的项目、债权和审批任务。</p></div>
+  <%= link_to "新建项目", new_project_path, class: "inline-flex items-center justify-center rounded-md bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cyan-800" if policy(Project).create? %>
+</div>
+
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  <% [["在办项目", @stats[:projects], "个"], ["待审债权", @stats[:active_claims], "笔"], ["我的任务", @stats[:pending_tasks], "项"], ["应收费用", money(@stats[:receivable]), ""], ["已收费用", money(@stats[:received]), ""]].each do |label, value, suffix| %>
+    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"><p class="text-sm font-medium text-slate-500"><%= label %></p><p class="mt-3 text-2xl font-bold tracking-tight"><%= value %><span class="ml-1 text-sm font-medium text-slate-400"><%= suffix %></span></p></div>
+  <% end %>
+</div>
+
+<div class="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.8fr)]">
+  <section class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4"><div><h2 class="font-bold">最近项目</h2><p class="text-xs text-slate-500">按最近更新排序</p></div><%= link_to "查看全部", projects_path, class: "text-sm font-semibold text-cyan-700 hover:text-cyan-900" %></div>
+    <% if @recent_projects.any? %>
+      <div class="divide-y divide-slate-100">
+        <% @recent_projects.each do |project| %>
+          <%= link_to project, class: "flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-slate-50" do %>
+            <div class="min-w-0"><p class="truncate font-semibold"><%= project.name %></p><p class="mt-1 text-xs text-slate-500"><%= project.code %> · <%= project_type_label(project.project_type) %> · <%= project.department&.name || "未分配部门" %></p></div>
+            <div class="shrink-0"><%= status_badge(project.status) %></div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %><div class="px-5 py-12 text-center text-sm text-slate-500">尚无项目，创建第一个项目开始工作。</div><% end %>
+  </section>
+
+  <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><h2 class="font-bold">我的待办</h2><p class="mt-1 text-xs text-slate-500">临近截止日期优先</p>
+    <% if @my_tasks.any? %><div class="mt-4 space-y-3"><% @my_tasks.each do |task| %><div class="rounded-md border border-slate-200 p-3"><p class="text-sm font-semibold"><%= link_to task.stage, workflow_task_path(task), class: "text-cyan-700 hover:underline" %></p><p class="mt-1 text-xs text-slate-500"><%= task.project.name %><%= " · #{l(task.due_at, format: :short)}" if task.due_at %></p></div><% end %></div>
+    <% else %><div class="mt-5 rounded-md bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">当前没有分配给您的待办任务。</div><% end %>
+  </section>
+</div>

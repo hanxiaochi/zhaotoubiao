@@ -1,0 +1,2 @@
+<details class="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs"><summary class="cursor-pointer font-semibold text-slate-600">查看本次审核依据快照</summary>
+<% if review.basis_sha256.present? %><p class="mt-2 break-all text-slate-500">SHA-256：<%= review.basis_sha256 %></p><pre class="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-all"><%= JSON.pretty_generate(review.evidence_snapshot) %></pre><% else %><p class="mt-2 text-amber-800">历史审核未记录依据快照，不能作为当前材料版本的核验凭证。</p><% end %></details>

@@ -1,0 +1,21 @@
+<section class="mt-5 overflow-hidden rounded-lg border border-slate-200 bg-white">
+  <div class="border-b border-slate-200 p-4"><h2 class="font-bold">评分点证据引用</h2><p class="mt-1 text-xs text-slate-500">保存资料版本、原件标识和页码说明；修改资料库不会覆盖历史依据。新增引用后需重新复核。</p></div>
+  <div class="overflow-x-auto"><table class="ledger-table"><thead><tr><th scope="col">评分点</th><th scope="col">资料 / 版本</th><th scope="col">位置与依据</th><th scope="col">引用人 / 时间</th></tr></thead><tbody>
+  <% @analysis.bid_evidences.includes(:created_by, :library_entry).order(:created_at).each do |evidence| %><tr>
+    <td><%= evidence.criterion %><% unless @analysis.criteria.include?(evidence.criterion) %><p class="text-xs text-amber-700">原评分点已变更，需重新核对</p><% end %></td>
+    <td><p class="font-semibold"><%= evidence.source_snapshot["title"] %> · v<%= evidence.source_snapshot["revision_number"] %></p><% if policy(evidence.library_entry).show? %><%= link_to "查看当前资料", evidence.library_entry, class: "text-xs text-cyan-700" %><% end %><% unless evidence.library_entry.usable? %><p class="text-xs text-amber-700">当前来源已失效，需重新核对</p><% end %><details class="mt-2"><summary class="cursor-pointer text-xs text-cyan-700">引用时快照</summary><p class="mt-2 whitespace-pre-wrap text-xs"><%= evidence.source_snapshot["description"] %></p><p class="mt-1 text-xs text-slate-500">编号：<%= evidence.source_snapshot["reference_number"] %> · 当时有效期：<%= evidence.source_snapshot["expires_on"] || "未设置" %></p><% evidence.source_snapshot.fetch("documents", []).each do |file| %><p class="mt-1 text-xs"><%= file["filename"] %><% if policy(evidence.library_entry).download? %> · <%= link_to "下载引用原件", download_library_entry_path(evidence.library_entry, attachment_id: file["attachment_id"]), class: "text-cyan-700" %><% end %></p><% end %></details></td>
+    <td><p><%= evidence.page_reference %></p><p class="mt-1 whitespace-pre-wrap text-xs text-slate-600"><%= evidence.note %></p></td>
+    <td><%= evidence.created_by.name %><p class="text-xs text-slate-500"><%= l(evidence.created_at, format: :short) %></p></td>
+  </tr><% end %>
+  <% if @analysis.bid_evidences.empty? %><tr><td colspan="4" class="text-center text-slate-500">尚未关联企业资质或案例证据。</td></tr><% end %>
+  </tbody></table></div>
+  <% if policy(@analysis).update? && policy(LibraryEntry).index? %>
+    <%= form_with url: bid_analysis_bid_evidences_path(@analysis), scope: :bid_evidence, class: "grid gap-3 border-t border-slate-200 p-4 lg:grid-cols-2" do |f| %>
+      <div><%= f.label :criterion, "对应评分点", class: "block text-xs text-slate-600" %><%= f.select :criterion, @analysis.criteria.map { |c| [c,c] }, { prompt: "选择当前评分点" }, required: true, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+      <div><%= f.label :library_entry_id, "资质或案例", class: "block text-xs text-slate-600" %><%= f.collection_select :library_entry_id, @library_entries, :public_id, :title, { prompt: "选择使用中且未过期的资料" }, required: true, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+      <div><%= f.label :page_reference, "原件位置 / 页码", class: "block text-xs text-slate-600" %><%= f.text_field :page_reference, required: true, placeholder: "例如：合同.pdf 第 3 页", class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+      <div><%= f.label :note, "支持该评分点的依据与边界", class: "block text-xs text-slate-600" %><%= f.text_area :note, rows: 2, required: true, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+      <div><%= f.submit "保存证据快照", class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm text-white" %></div>
+    <% end %>
+  <% end %>
+</section>

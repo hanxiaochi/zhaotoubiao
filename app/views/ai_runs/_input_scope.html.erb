@@ -1,0 +1,17 @@
+<section class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-5">
+  <h2 class="font-bold text-amber-950">实际 AI 输入范围</h2>
+  <% scope = run.input_scope %>
+  <% if scope.blank? %>
+    <p class="mt-2 text-sm text-amber-900"><%= run.status.in?(%w[queued running]) ? "尚未生成输入范围记录。" : "历史任务未记录输入范围，不能据此认定已分析全部文件。" %></p>
+  <% else %>
+    <p class="mt-2 text-sm text-amber-900"><%= scope["mode"] == "full_submission" ? "完整提交文本模拟审核；是否包含全部投标内容由提交人确认。" : "仅摘录分析，不是完整案卷或全文审核。" %> 本次纳入 <%= scope["included_characters"] %> 字符。</p>
+    <% if scope["mode"] == "excerpts" %>
+      <p class="mt-2 text-sm text-amber-900">超限未纳入 <%= scope["omitted_documents"] %> 份 · 已归档排除 <%= scope["archived_documents"] %> 份 · 无文本排除 <%= scope["without_text_documents"] %> 份。另行关联的评分点证明和人工输入见业务依据快照，不属于此文件摘录清单。</p>
+    <% end %>
+    <div class="mt-3 overflow-x-auto"><table class="min-w-full text-left text-sm"><thead><tr class="border-b border-amber-200"><th class="py-2 pr-4">实际发送文件</th><th class="pr-4">原文 / 纳入字符</th><th>范围</th></tr></thead><tbody>
+      <% scope.fetch("documents", []).each do |source| %>
+        <tr class="border-b border-amber-100"><td class="py-2 pr-4"><%= source["filename"] %><span class="block text-xs text-slate-500"><%= source["public_id"] %></span></td><td class="pr-4"><%= source["original_characters"] %> / <%= source["included_characters"] %></td><td><%= source["truncated"] ? "已截断，剩余未分析" : "本次文本全部纳入" %></td></tr>
+      <% end %>
+    </tbody></table></div>
+  <% end %>
+</section>

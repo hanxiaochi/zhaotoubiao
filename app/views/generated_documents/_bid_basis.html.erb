@@ -1,0 +1,16 @@
+<% if @document.bid_analysis %>
+  <section class="mb-6 rounded-lg border border-slate-200 bg-white p-5">
+    <div class="flex items-center justify-between gap-4"><h2 class="font-bold">投标起草依据</h2><%= link_to "查看关联分析", @document.bid_analysis, class: "text-sm font-semibold text-cyan-700" %></div>
+    <% if @document.bid_basis_current? %><p class="mt-2 text-sm text-emerald-700">依据与当前版本一致；事实、资质真实性和正文响应仍须人工核验。</p><% else %><p class="mt-2 text-sm font-semibold text-amber-800">起草依据已变化：暂停 AI 起草及业务通过审批。请退回或编辑草稿，核对正文后刷新依据。</p><% end %>
+    <details class="mt-3 text-sm"><summary class="cursor-pointer font-semibold">展开评分点、提纲与证明快照</summary>
+      <ul class="mt-3 list-disc space-y-2 pl-5"><% @document.bid_basis_snapshot.fetch("criteria", []).each do |criterion| %><li><%= criterion %></li><% end %></ul>
+      <% @document.bid_basis_snapshot.fetch("scores", []).each do |score| %><p class="mt-3 rounded-md bg-slate-50 p-3"><span class="font-semibold"><%= score["criterion"] %> · 满分 <%= score["maximum"] %></span><br><%= score["scoring_rule"].presence || "评分规则待补充" %></p><% end %>
+      <ol class="mt-3 list-decimal space-y-2 pl-5"><% @document.bid_basis_snapshot.fetch("outline", []).each do |item| %><li><%= item %></li><% end %></ol>
+      <% BidAnalysis::REVIEW_SECTIONS.each do |field, title| %>
+        <% items = @document.bid_basis_snapshot.fetch("review_sections", {}).fetch(field, []) %>
+        <% if items.any? %><h3 class="mt-4 font-semibold"><%= title %></h3><ul class="mt-2 list-disc space-y-2 pl-5"><% items.each do |item| %><li><%= item %></li><% end %></ul><% end %>
+      <% end %>
+      <% @document.bid_basis_snapshot.fetch("evidence", []).each do |item| %><p class="mt-3 border-t border-slate-100 pt-3"><%= item["criterion"] %> · <%= item["source"]["title"] || "不可用引用" %> · <%= item["page_reference"] %><br><%= item["warning"] || item["note"] %></p><% end %>
+    </details>
+  </section>
+<% end %>

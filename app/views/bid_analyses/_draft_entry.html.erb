@@ -1,0 +1,6 @@
+<% if policy(GeneratedDocument.new(project: @analysis.project)).create? %>
+  <div class="mb-5 flex items-center justify-between gap-4 rounded-lg border border-cyan-200 bg-cyan-50 p-4">
+    <p class="text-sm text-cyan-950">将本分析的评分点、提纲和已关联资质 / 案例作为技术标起草依据。</p>
+    <%= link_to "按本分析起草技术标", new_project_generated_document_path(@analysis.project, kind: "bid_technical", bid_analysis_id: @analysis.public_id), class: "shrink-0 rounded-md bg-cyan-800 px-4 py-2 text-sm font-semibold text-white" %>
+  </div>
+<% end %>

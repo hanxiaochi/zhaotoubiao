@@ -1,0 +1,25 @@
+<% content_for :title, "#{@notice.title}｜招标信息" %>
+<% content_for :page_title, "招标信息" %>
+<div class="mx-auto max-w-5xl">
+  <%= link_to "← 返回招标信息", tender_notices_path, class: "text-sm font-semibold text-cyan-700" %>
+  <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <div class="flex flex-col justify-between gap-4 sm:flex-row">
+      <div>
+        <%= status_badge(@notice.status) %>
+        <h1 class="mt-4 text-2xl font-bold"><%= @notice.title %></h1>
+        <p class="mt-2 text-sm text-slate-500"><%= @notice.tender_source&.name || "人工登记" %></p>
+      </div>
+      <div class="flex h-fit flex-wrap gap-2">
+        <%= link_to "编辑与更新状态", edit_tender_notice_path(@notice), class: "rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold" if policy(@notice).update? %>
+        <%= link_to "打开来源页面", @notice.url, target: "_blank", rel: "noopener noreferrer", class: "rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white" %>
+      </div>
+    </div>
+    <dl class="mt-7 grid gap-5 border-t border-slate-100 pt-6 text-sm sm:grid-cols-2">
+      <div><dt class="text-slate-500">地区 / 行业</dt><dd class="mt-1 font-medium"><%= [@notice.region, @notice.industry].compact_blank.join(" / ").presence || "—" %></dd></div>
+      <div><dt class="text-slate-500">外部编号</dt><dd class="mt-1 font-medium"><%= @notice.external_id.presence || "—" %></dd></div>
+      <div><dt class="text-slate-500">发布时间</dt><dd class="mt-1 font-medium"><%= @notice.published_at ? l(@notice.published_at, format: :default) : "—" %></dd></div>
+      <div><dt class="text-slate-500">截止时间</dt><dd class="mt-1 font-medium"><%= @notice.deadline_at ? l(@notice.deadline_at, format: :default) : "—" %></dd></div>
+    </dl>
+  </div>
+  <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950">该页面仅汇总线索。资格条件、报名要求、评分办法及是否参与投标必须以原始公告和人工复核为准。</div>
+</div>

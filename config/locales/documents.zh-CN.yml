@@ -1,0 +1,10 @@
+zh-CN:
+  activerecord:
+    attributes:
+      project_document:
+        sha256: 文件摘要
+  ocr_fields:
+    creditor_name: 债权人名称
+    unified_code: 统一社会信用代码
+    contact_phone: 联系电话
+    claim_amount: 申报金额

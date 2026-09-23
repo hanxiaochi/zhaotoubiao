@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full bg-slate-50">
+  <head>
+    <title><%= content_for(:title) || "江苏东华 AI 工作平台" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="application-name" content="江苏东华 AI 工作平台">
+    <meta name="theme-color" content="#0f172a">
+    <%= favicon_link_tag "/favicon.svg", type: "image/svg+xml" %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <%= stylesheet_link_tag "tailwind", "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="workbench-shell min-h-full font-sans text-slate-900 antialiased">
+    <% if current_user %>
+      <div class="min-h-screen lg:grid lg:grid-cols-[224px_minmax(0,1fr)]">
+        <aside class="workbench-sidebar hidden min-h-screen px-3 py-4 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col">
+          <div class="flex items-center gap-3 px-2 pb-5">
+            <div class="grid size-10 place-items-center rounded-xl bg-cyan-400 text-lg font-black text-slate-950">东</div>
+            <div>
+              <p class="text-sm font-bold tracking-wide text-white">江苏东华</p>
+              <p class="text-xs text-slate-400">AI 工作平台</p>
+            </div>
+          </div>
+          <nav class="space-y-1">
+            <%= nav_link "工作看板", root_path, active: controller_name == "dashboard" %>
+            <%= nav_link "部门汇总", department_reports_path, active: controller_name == "department_reports" %>
+            <%= nav_link "项目中心", projects_path, active: controller_name == "projects" %>
+            <%= nav_link "审批任务", workflow_tasks_path, active: controller_name == "workflow_tasks" %>
+            <%= nav_link "通知#{current_user.notifications.unread.exists? ? ' ·' : ''}", notifications_path, active: controller_name == "notifications" %>
+            <%= nav_link "招标信息", tender_notices_path, active: controller_name == "tender_notices" %>
+            <%= nav_link "模板库", tender_templates_path, active: controller_name == "tender_templates" %>
+            <% if policy(LibraryEntry).index? %><%= nav_link "企业资料库", library_entries_path, active: controller_name == "library_entries" %><% end %>
+            <% if current_user.admin? %>
+              <%= nav_link "系统管理", users_path, active: %w[users roles departments].include?(controller_name) %>
+              <%= nav_link "审计日志", audit_events_path, active: controller_name == "audit_events" %>
+            <% end %>
+          </nav>
+          <div class="mt-6 rounded-lg border border-white/10 bg-white/5 p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-cyan-300">人工复核原则</p>
+            <p class="mt-2 text-xs leading-5 text-slate-400">AI 仅提供提取、比对和建议。法律结论、专业判断及审批结果由授权人员确认。</p>
+          </div>
+          <div class="mt-auto border-t border-white/10 px-2 pt-4">
+            <p class="truncate text-sm font-semibold text-white"><%= current_user.name %></p>
+            <p class="truncate text-xs text-slate-400"><%= current_user.email %></p>
+            <%= button_to "安全退出", session_path, method: :delete, class: "mt-3 text-xs font-medium text-slate-300 hover:text-white" %>
+          </div>
+        </aside>
+
+        <div class="min-w-0">
+          <header class="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 px-4 py-3 backdrop-blur lg:px-6">
+            <div class="mx-auto flex max-w-[1680px] items-center justify-between">
+              <div>
+                <p class="text-xs font-medium text-slate-500">业务协作与智能复核</p>
+                <p class="font-semibold text-slate-900"><%= content_for(:page_title) || "江苏东华 AI 工作平台" %></p>
+              </div>
+              <div class="hidden items-center gap-3 text-xs text-slate-500 lg:flex"><span class="status-pulse"></span><span>业务协作空间</span><span class="border-l border-slate-200 pl-3"><%= l(Date.current) %></span></div>
+              <details class="relative lg:hidden">
+                <summary class="cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">功能菜单</summary>
+                <nav class="absolute right-0 mt-2 grid w-48 gap-1 rounded-2xl border border-slate-200 bg-white p-2 text-sm shadow-xl">
+                  <%= link_to "工作看板", root_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                  <%= link_to "项目中心", projects_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                  <%= link_to "审批任务", workflow_tasks_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                  <%= link_to "通知", notifications_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                  <%= link_to "招标信息", tender_notices_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                  <%= link_to "模板库", tender_templates_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                  <% if current_user.admin? %>
+                    <%= link_to "系统管理", users_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                    <%= link_to "审计日志", audit_events_path, class: "rounded-lg px-3 py-2 hover:bg-slate-100" %>
+                  <% end %>
+                </nav>
+              </details>
+            </div>
+          </header>
+          <main class="workbench-main mx-auto max-w-[1680px] px-4 py-6 lg:px-6 lg:py-5">
+            <% flash.each do |type, message| %>
+              <% colors = type.to_s == "alert" ? "border-rose-200 bg-rose-50 text-rose-800" : "border-emerald-200 bg-emerald-50 text-emerald-800" %>
+              <div class="mb-5 rounded-xl border px-4 py-3 text-sm font-medium <%= colors %>" role="status"><%= message %></div>
+            <% end %>
+            <%= yield %>
+          </main>
+        </div>
+      </div>
+    <% else %>
+      <main class="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_top_left,_#164e63,_#0f172a_45%,_#020617)] px-4 py-10">
+        <div class="w-full max-w-md">
+          <div class="mb-6 flex items-center justify-center gap-3 text-white">
+            <div class="grid size-11 place-items-center rounded-2xl bg-cyan-400 text-xl font-black text-slate-950">东</div>
+            <div>
+              <p class="font-bold">江苏东华会计师事务所</p>
+              <p class="text-xs text-slate-300">AI 工作平台</p>
+            </div>
+          </div>
+          <% flash.each do |type, message| %>
+            <div class="mb-4 rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white"><%= message %></div>
+          <% end %>
+          <%= yield %>
+          <p class="mt-5 text-center text-xs text-slate-400">内部业务系统 · 所有操作均保留审计记录</p>
+        </div>
+      </main>
+    <% end %>
+    <%= render "shared/confirmation" %>
+  </body>
+</html>

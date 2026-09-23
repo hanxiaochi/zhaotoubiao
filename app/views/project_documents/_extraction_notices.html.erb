@@ -1,0 +1,7 @@
+<% if @project_document.ocr_status == "failed" %>
+  <section role="alert" class="mt-4 rounded-xl border border-red-200 bg-red-50 p-4"><h2 class="text-sm font-bold text-red-900">解析未完成</h2><p class="mt-2 text-sm text-red-800"><%= @project_document.metadata["ocr_error"].presence || "任务失败，请核查原件、工作进程及服务配置后重新发起。" %></p></section>
+<% end %>
+<%= render "visual_review" %>
+<% if Array(@project_document.metadata["ocr_warnings"]).any? %>
+  <section class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4"><h2 class="text-sm font-bold text-amber-900">解析范围与待核事项</h2><ul class="mt-2 list-disc space-y-1 pl-4 text-sm text-amber-900"><% @project_document.metadata["ocr_warnings"].each do |warning| %><li><%= warning %></li><% end %></ul></section>
+<% end %>

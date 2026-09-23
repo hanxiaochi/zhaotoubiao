@@ -1,0 +1,14 @@
+<section class="my-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+  <div class="flex flex-wrap items-center justify-between gap-3"><h2 class="font-bold text-amber-950">材料补正与重新提交</h2><span class="text-xs text-amber-800">依据材料登记与人工核验状态汇总</span></div>
+  <% if @claim.supplement_issues.any? %><ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-amber-900"><% @claim.supplement_issues.each do |issue| %><li><%= issue %></li><% end %></ul>
+  <% elsif @claim.status.in?(%w[approved rejected]) %><p class="mt-3 text-sm text-slate-700">本次审核已结束，材料与补正记录只读留存。具体处理意见见审核轨迹，系统状态不代替法定认定文书。</p>
+  <% else %><p class="mt-3 text-sm text-emerald-800">当前材料适用规则和核验项已满足，可提交有权人员审核；这不代表最终债权认定。</p><% end %>
+  <% if policy(@claim).resubmit? %>
+    <%= form_with url: resubmit_claim_path(@claim), class: "mt-5 space-y-3" do |form| %>
+      <%= form.label :note, "本次补正说明", class: "block text-sm font-semibold" %>
+      <%= form.text_area :note, required: true, rows: 3, placeholder: "说明补充的文件、修改内容及仍未解决的事项", class: "w-full rounded-xl border border-amber-300 bg-white p-3 text-sm" %>
+      <%= form.submit "提交补正并返回复核", class: "cursor-pointer rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white" %>
+    <% end %>
+  <% end %>
+  <% if @supplements.any? %><div class="mt-5 border-t border-amber-200 pt-4"><h3 class="text-sm font-bold">补正提交历史</h3><% @supplements.each do |item| %><div class="mt-3 border-l-2 border-amber-400 pl-3"><p class="text-xs text-slate-600"><%= item.submitted_by.name %> · <%= l(item.created_at, format: :short) %> · <%= ClaimReviewFlow::STAGE_LABELS[item.review_stage] %></p><p class="mt-1 whitespace-pre-line text-sm"><%= item.note %></p><p class="mt-1 text-xs text-slate-500">已保存 <%= item.material_snapshot.size %> 项材料的提交时状态</p></div><% end %></div><% end %>
+</section>

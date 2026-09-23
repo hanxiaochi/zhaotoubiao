@@ -1,0 +1,10 @@
+<% if @task.countersign? %>
+  <section class="my-6 rounded-2xl border border-cyan-200 bg-white p-5">
+    <h2 class="font-bold">多人会签进度</h2><p class="mt-1 text-sm text-slate-500">所有指定成员分别通过后完成会签。本轮退回后由负责人重新发起任务，原意见保留。</p>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      <% @task.workflow_signatures.includes(:user).each do |signature| %>
+        <div class="rounded-xl border border-slate-200 p-4"><div class="flex items-center justify-between"><p class="font-semibold"><%= signature.user.name %></p><%= status_badge(signature.status) %></div><p class="mt-2 whitespace-pre-line text-sm text-slate-600"><%= signature.comment.presence || "等待独立提交意见" %></p><% if signature.decided_at %><p class="mt-2 text-xs text-slate-400"><%= l(signature.decided_at, format: :short) %></p><% end %></div>
+      <% end %>
+    </div>
+  </section>
+<% end %>

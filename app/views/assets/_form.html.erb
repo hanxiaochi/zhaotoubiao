@@ -1,0 +1,19 @@
+<%= form_with model: [project, asset], class: "space-y-6" do |form| %>
+  <%= render "shared/errors", record: asset %>
+  <div class="grid gap-5 md:grid-cols-2">
+    <div><%= form.label :asset_code, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :asset_code, required: true, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :name, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :name, required: true, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :category, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :category, required: true, placeholder: "房产、车辆、设备等", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :disposal_status, class: "mb-1.5 block text-sm font-semibold" %><%= form.select :disposal_status, [["待核查", "pending"], ["已查验", "verified"], ["处置中", "disposing"], ["已处置", "disposed"]], {}, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :address, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :address, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :rights_no, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :rights_no, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :appraisal_org, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :appraisal_org, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :appraisal_value, class: "mb-1.5 block text-sm font-semibold" %><%= form.number_field :appraisal_value, min: 0, step: 0.01, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+  </div>
+  <div class="grid gap-5 md:grid-cols-2">
+    <div><%= form.label :source_reference, "合同/来源编号", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :source_reference, maxlength: 255, class: "w-full rounded-lg border border-slate-300 px-3.5 py-2.5" %><p class="mt-2 text-xs text-slate-500">同一合同可能包含多个资产，仅作为关联排查依据。</p></div>
+    <div><%= form.label :description, "资产特征与来源说明", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_area :description, maxlength: 2000, rows: 4, placeholder: "设备序号、房号、权属/合同页码、盘点说明等；最多2000字。", class: "w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm" %></div>
+  </div>
+  <div><%= form.label :change_reason, asset.persisted? ? "本次修改原因" : "登记依据", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_area :change_reason, name: "asset[change_reason]", required: true, rows: 3, placeholder: "说明数据来源或价值变化依据；该内容将随版本永久保留", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+  <div class="flex justify-end gap-3 border-t border-slate-100 pt-5"><%= link_to "取消", project_path(project), class: "rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100" %><%= form.submit asset.persisted? ? "保存新版本" : "登记资产", class: "cursor-pointer rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800" %></div>
+<% end %>

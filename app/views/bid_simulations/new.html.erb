@@ -1,0 +1,11 @@
+<% content_for :page_title, "新建完整投标模拟审核" %>
+<h1 class="text-2xl font-bold">完整投标文件 · AI 模拟审核</h1>
+<p class="mt-2 text-sm text-slate-500">先在逐项评分中登记完整 100 分量表及评分标准原文，再选择完整文稿或已解析文件。本次保存全文与规则快照，不改人工自评分。</p>
+<%= form_with model: [@analysis, @simulation], class: "mt-4 space-y-4 rounded-lg border border-slate-200 bg-white p-5" do |f| %>
+  <%= render "shared/errors", record: @simulation %>
+  <div><%= f.label :title, "审核批次名称", class: "block text-sm font-semibold" %><%= f.text_field :title, required: true, class: "mt-1 w-full rounded-md border border-slate-300 p-2" %></div>
+  <div><%= label_tag :source_ref, "完整投标文稿 / 已解析文件", class: "block text-sm font-semibold" %><%= select_tag :source_ref, options_for_select(@sources, params[:source_ref]), prompt: "请选择完整投标文件", required: true, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+  <label class="flex items-start gap-2 text-sm"><%= f.check_box :confirmed_complete, required: true %><span>我已核对所选文本包含完整投标内容；如来源为 OCR，已人工核对缺页、漏字和附件。此确认不代表业务定稿。</span></label>
+  <p class="text-xs text-slate-500">当前单次审核支持全文 100000 字符以内；超过范围将明确拒绝，不会截断后假称全文审核。保存后需单独发起 AI 调用，生成结果必须人工批准。</p>
+  <div class="flex gap-4"><%= f.submit "保存审核快照", class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm text-white" %><%= link_to "返回分析", @analysis, class: "py-2 text-sm text-cyan-700" %></div>
+<% end %>

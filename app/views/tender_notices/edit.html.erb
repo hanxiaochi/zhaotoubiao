@@ -1,0 +1,12 @@
+<% content_for :title, "更新招标信息｜江苏东华 AI 工作平台" %>
+<% content_for :page_title, "招标信息" %>
+<div class="mx-auto max-w-4xl">
+  <div class="mb-6">
+    <p class="text-sm font-semibold text-cyan-700">线索跟进</p>
+    <h1 class="mt-1 text-2xl font-bold">编辑招标信息与状态</h1>
+    <p class="mt-2 text-sm text-slate-500">状态变化将写入审计日志；参与投标的最终决定仍由负责人确认。</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <%= render "form", notice: @notice %>
+  </div>
+</div>

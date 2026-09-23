@@ -1,0 +1,16 @@
+<%= form_with model: claim.persisted? ? claim : [project, claim], class: "space-y-6" do |form| %>
+  <%= hidden_field_tag :source_document_id, @source_document.public_id if @source_document %>
+  <%= render "shared/errors", record: claim %>
+  <% if @source_document %><div class="rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm text-cyan-950">已根据 <strong><%= @source_document.original_filename %></strong> 的 OCR 字段预填。保存后仍须逐项人工核验。</div><% end %>
+  <% unless claim.persisted? %><div><%= label_tag :claim_checklist_id, "材料清单模板", class: "mb-1.5 block text-sm font-semibold" %><%= select_tag :claim_checklist_id, options_for_select([["系统默认七项清单", ""]] + @claim_checklists.map { |item| ["#{item.name}（#{claim_type_label(item.claim_type)}，#{item.material_types.size} 项）", item.public_id] }, params[:claim_checklist_id]), class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %><p class="mt-1.5 text-xs text-slate-500">可在项目页按案件和债权类型维护清单；模板类型需与申报性质匹配。</p></div><% end %>
+  <div class="grid gap-5 md:grid-cols-2">
+    <div><%= form.label :creditor_name, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :creditor_name, required: true, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :unified_code, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :unified_code, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :contact_name, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :contact_name, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :contact_phone, class: "mb-1.5 block text-sm font-semibold" %><%= form.telephone_field :contact_phone, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div class="grid grid-cols-[1fr_110px] gap-3"><div><%= form.label :claim_amount, class: "mb-1.5 block text-sm font-semibold" %><%= form.number_field :claim_amount, required: true, min: 0, step: 0.01, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div><div><%= form.label :currency, class: "mb-1.5 block text-sm font-semibold" %><%= form.select :currency, [["人民币", "CNY"], ["美元", "USD"], ["欧元", "EUR"]], {}, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div></div>
+    <div><%= form.label :claimed_type, class: "mb-1.5 block text-sm font-semibold" %><%= form.select :claimed_type, ApplicationHelper::CLAIM_TYPE_LABELS.map { |value, label| [label, value] }, {}, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %><p class="mt-1.5 text-xs text-slate-500">申报性质不等于最终认定结论。</p></div>
+  </div>
+  <div><%= form.label :summary, class: "mb-1.5 block text-sm font-semibold" %><%= form.text_area :summary, rows: 6, placeholder: "概述债权形成过程、合同和付款情况", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+  <div class="flex justify-end gap-3 border-t border-slate-100 pt-5"><%= link_to "取消", claim.persisted? ? claim_path(claim) : project_path(project), class: "rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100" %><%= form.submit claim.persisted? ? "保存修改" : "登记申报", class: "cursor-pointer rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800" %></div>
+<% end %>

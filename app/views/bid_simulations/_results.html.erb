@@ -1,0 +1,7 @@
+<p class="mt-3 text-sm font-semibold">汇总分：<%= total_score.nil? ? "无法可靠汇总 / 待核" : number_with_precision(total_score, precision: 2) %> / 100</p>
+<div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 bg-white">
+  <table class="ledger-table"><caption class="sr-only">逐项模拟建议及原文依据</caption><thead><tr><th scope="col">评分点 / 满分</th><th scope="col" class="numeric">建议分</th><th scope="col">得扣分依据</th><th scope="col">原文引用 / 位置</th><th scope="col">待核项</th></tr></thead>
+    <tbody><% results.each do |row| %><tr><td><%= row["criterion"] %><p class="mt-1 text-sm text-slate-500">满分 <%= number_with_precision(row["maximum"], precision: 2) %></p></td><td class="numeric font-semibold"><%= row["awarded"].nil? ? "无法判断" : number_with_precision(row["awarded"], precision: 2) %></td><td class="max-w-sm whitespace-pre-wrap text-sm"><%= row["reason"] %></td><td class="max-w-sm text-sm"><blockquote class="whitespace-pre-wrap"><%= row["excerpt"].presence || "无引用" %></blockquote><p class="mt-2 text-slate-500"><%= row["location"] %></p></td><td class="text-sm"><%= row["missing_evidence"].any? ? row["missing_evidence"].join("；") : "未列出（仍需人工核验）" %></td></tr><% end %></tbody>
+  </table>
+</div>
+<% if warnings.any? %><aside class="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-4"><h3 class="text-sm font-semibold text-amber-950">模型提示的待核事项</h3><ul class="mt-2 list-disc space-y-2 pl-5 text-sm leading-6 text-amber-900"><% warnings.each do |warning| %><li><%= warning %></li><% end %></ul></aside><% end %>

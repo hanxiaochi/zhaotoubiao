@@ -1,0 +1,16 @@
+<% if @task.claim_gate? %>
+  <section class="my-4 rounded-lg border border-cyan-200 bg-cyan-50 p-4">
+    <h2 class="font-bold text-cyan-950">债权层级联动</h2><p class="mt-2 text-sm text-cyan-950"><%= link_to @task.record.creditor_name, @task.record, class: "underline" %> · <%= ClaimReviewFlow::STAGE_LABELS[@task.claim_review_stage] %>。本任务通过仅解除本层前置条件，不自动认定债权或跳过后续审核。</p>
+    <% if @task.superseded? %><p class="mt-2 text-sm text-amber-900">本轮已被新一轮替代，只保留历史签署。<%= link_to "查看新一轮", @task.replacement_task, class: "underline" %></p>
+    <% elsif !@task.claim_stage_open? %><p class="mt-2 text-sm text-amber-900">债权层级已变化、正在补正或已终审；不能继续处理此轮任务。</p>
+    <% elsif !@task.claim_basis_current? %><p class="mt-2 text-sm text-amber-900">申报或材料已变化，原签署不能用于当前版本；请重新发起。</p><% end %>
+    <% if @task.replaces_task %><p class="mt-2 text-sm"><%= link_to "查看上一轮", @task.replaces_task, class: "text-cyan-800 underline" %> · 重新发起原因：<%= @task.restart_reason %></p><% end %>
+    <% if policy(@task).restart? %>
+      <%= form_with url: restart_workflow_task_path(@task), class: "mt-4 grid gap-3 border-t border-cyan-200 pt-4 lg:grid-cols-[1fr_240px_auto]" do |form| %>
+        <div><%= form.label :restart_reason, "重新发起原因", class: "block text-sm font-semibold" %><%= form.text_field :restart_reason, required: true, class: "mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-sm" %></div>
+        <div><%= form.label :due_at, "本轮截止时间", class: "block text-sm font-semibold" %><%= form.datetime_local_field :due_at, value: @task.due_at&.strftime("%Y-%m-%dT%H:%M"), class: "mt-1 w-full rounded-md border border-slate-300 bg-white p-2 text-sm" %></div>
+        <%= form.submit "保留历史并重新发起", class: "self-end cursor-pointer rounded-md bg-cyan-800 px-3 py-2 text-sm text-white" %>
+      <% end %><p class="mt-2 text-sm text-cyan-900">沿用原办理人及全部会签人，不复用旧签署；如原人员已停用或撤权，会阻止重发，需先核查人员安排。</p>
+    <% end %>
+  </section>
+<% elsif @task.record_type == "Claim" %><p class="my-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900">旧版任务未绑定债权层级，仅保留历史记录；不能作为本层已会签证明。</p><% end %>

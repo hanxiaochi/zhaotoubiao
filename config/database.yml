@@ -1,0 +1,49 @@
+development:
+  adapter: sqlite3
+  database: <%= ENV.fetch("SQLITE_DATABASE", "storage/development.sqlite3") %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+test:
+<% if ENV["TEST_DATABASE_URL"].present? %>
+  adapter: postgresql
+  url: <%= ENV["TEST_DATABASE_URL"] %>
+  # Keep the checked-in SQLite-compatible schema portable after PG regression.
+  # PostgreSQL serializes check constraints with casts unsupported by SQLite.
+  schema_dump: false
+<% else %>
+  adapter: sqlite3
+  database: <%= ENV.fetch("SQLITE_TEST_DATABASE", "storage/test.sqlite3") %>
+<% end %>
+  pool: 5
+  timeout: 5000
+
+production:
+  primary:
+    adapter: postgresql
+    encoding: unicode
+    url: <%= ENV["DATABASE_URL"] %>
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    prepared_statements: true
+    advisory_locks: true
+  queue:
+    adapter: postgresql
+    encoding: unicode
+    url: <%= ENV["QUEUE_DATABASE_URL"] %>
+    pool: <%= ENV.fetch("JOB_DB_POOL") { 10 } %>
+    migrations_paths: db/queue_migrate
+    schema_dump: queue_schema.rb
+  cache:
+    adapter: postgresql
+    encoding: unicode
+    url: <%= ENV["CACHE_DATABASE_URL"] %>
+    migrations_paths: db/cache_migrate
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    schema_dump: cache_schema.rb
+  cable:
+    adapter: postgresql
+    encoding: unicode
+    url: <%= ENV["CABLE_DATABASE_URL"] %>
+    migrations_paths: db/cable_migrate
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    schema_dump: cable_schema.rb

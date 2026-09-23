@@ -1,0 +1,33 @@
+<% content_for :title, "AI 辅助任务｜江苏东华 AI 工作平台" %>
+<% content_for :page_title, "AI 辅助任务" %>
+<div data-controller="job-monitor" data-job-monitor-status-value="<%= @run.status %>">
+  <%= link_to "← 返回分析", @run.record, class: "text-sm font-semibold text-cyan-700" %>
+  <section class="mt-4 rounded-lg border border-slate-200 bg-white p-5">
+    <div class="flex items-start justify-between gap-4"><div><%= status_badge(@run.status) %><h1 class="mt-3 text-2xl font-bold"><%= ai_task_label(@run.task_type) %></h1><p class="mt-2 text-sm text-slate-500"><%= @run.provider || "等待执行" %> · <%= @run.model || "模型待定" %> · 请求人 <%= @run.requested_by.name %></p></div><div class="text-right text-sm text-slate-500"><p>输入 tokens：<%= @run.input_tokens || "—" %></p><p class="mt-1">输出 tokens：<%= @run.output_tokens || "—" %></p></div></div>
+    <% if @run.status.in?(%w[queued running]) %><p role="status" class="mt-4 rounded-md bg-cyan-50 p-3 text-sm text-cyan-900">任务正在后台处理，本页每五秒检查状态。请勿重复提交。</p><% end %>
+    <% if @simulation_preview %><div class="mt-5 border-t border-slate-100 pt-4"><h2 class="font-bold">逐项模拟建议预览</h2><p class="mt-2 text-sm text-slate-600">系统已检查评分点覆盖、分值范围和引用片段是否出现在全文中；得扣分判断和真实性仍需人工核验。预览不代表批准。</p><%= render "bid_simulations/results", **@simulation_preview.slice(:results, :warnings, :total_score) %></div><% end %>
+    <% if @preview_error %><p role="alert" class="mt-4 rounded-md bg-rose-50 p-3 text-sm text-rose-900"><%= @preview_error %>。不能批准此输出，请核查模型原文并拒绝后重新生成。</p><% end %>
+    <details class="mt-5 border-t border-slate-100 pt-4" <%= "open" unless @simulation_preview %>><summary class="cursor-pointer text-sm font-semibold text-slate-600">模型原始输出</summary><pre class="mt-3 max-h-[520px] overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950 p-4 text-sm leading-6 text-slate-100"><%= @run.raw_output.presence || @run.output.presence || "任务尚未返回输出。" %></pre></details>
+  </section>
+  <%= render "input_scope", run: @run %>
+  <% if policy(@run).reject? %>
+    <section class="mt-4 grid gap-4 md:grid-cols-2">
+      <% if policy(@run).approve? && @run.source_current? && !@preview_error %>
+        <%= form_with url: approve_ai_run_path(@run), class: "rounded-lg border border-emerald-200 bg-emerald-50 p-5" do |form| %>
+          <h2 class="font-bold text-emerald-950">批准并应用</h2><p class="mt-2 text-sm leading-6 text-emerald-800"><%= @run.task_type == "bid_simulation" ? "批准后仅保留本批次独立模拟结果，不修改人工自评分和文稿正文。" : "批准后写回分析草稿，仍需业务复核。" %></p>
+          <%= form.label :review_note, "批准依据与人工修订说明", for: "approve_review_note", class: "mt-3 block text-sm font-semibold" %>
+          <%= form.text_area :review_note, id: "approve_review_note", required: true, rows: 3, placeholder: "批准依据与人工修订说明", class: "mt-2 w-full rounded-md border border-emerald-300 bg-white p-3 text-sm" %>
+          <%= form.submit "人工批准并应用", class: "mt-3 cursor-pointer rounded-md bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white" %>
+        <% end %>
+      <% elsif !@preview_error %><div role="status" class="rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">源数据或业务状态已变更，或历史任务缺少版本指纹，禁止应用此建议。请拒绝旧建议后重新生成。</div><% end %>
+      <%= form_with url: reject_ai_run_path(@run), class: "rounded-lg border border-slate-200 bg-white p-5" do |form| %>
+        <h2 class="font-bold text-slate-950">拒绝建议</h2><p class="mt-2 text-sm leading-6 text-slate-600">拒绝不会修改任何业务数据。</p>
+        <%= form.label :review_note, "拒绝原因", for: "reject_review_note", class: "mt-3 block text-sm font-semibold" %>
+        <%= form.text_area :review_note, id: "reject_review_note", required: true, rows: 3, placeholder: "拒绝原因", class: "mt-2 w-full rounded-md border border-slate-300 p-3 text-sm" %>
+        <%= form.submit "拒绝 AI 建议", class: "mt-3 cursor-pointer rounded-md border border-rose-300 px-4 py-2.5 text-sm font-semibold text-rose-700" %>
+      <% end %>
+    </section>
+  <% end %>
+  <% if @run.reviewed_at %><section class="mt-4 rounded-lg border border-slate-200 bg-white p-4"><h2 class="text-sm font-semibold">人工复核记录</h2><p class="mt-2 text-sm text-slate-600"><%= @run.reviewed_by.name %> · <%= l(@run.reviewed_at, format: :default) %></p><p class="mt-2 whitespace-pre-wrap text-sm"><%= @run.review_note %></p></section><% end %>
+  <p class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">AI 输出不是法律、审计、评估或中标结论。证据引用：<%= @run.evidence_refs.any? ? @run.evidence_refs.join("、") : "无已提取文件文本" %>。</p>
+</div>

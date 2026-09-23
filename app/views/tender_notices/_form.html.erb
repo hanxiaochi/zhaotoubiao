@@ -1,0 +1,46 @@
+<%= form_with model: notice, class: "space-y-6" do |form| %>
+  <%= render "shared/errors", record: notice %>
+  <div class="grid gap-5 md:grid-cols-2">
+    <div class="md:col-span-2">
+      <%= form.label :title, "项目标题", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.text_field :title, required: true, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+    <div>
+      <%= form.label :tender_source_id, "数据源", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.collection_select :tender_source_id, TenderSource.where(authorized: true, active: true).or(TenderSource.where(id: notice.tender_source_id)).order(:name), :id, :name, { include_blank: "人工登记/无数据源" }, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+      <p class="mt-1 text-xs text-slate-500">只能新选已启用且已授权的数据源；历史来源停用后仍可保留。</p>
+    </div>
+    <div>
+      <%= form.label :external_id, "外部编号", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.text_field :external_id, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+    <div class="md:col-span-2">
+      <%= form.label :url, "来源链接", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.url_field :url, required: true, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+    <div>
+      <%= form.label :region, "地区", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.text_field :region, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+    <div>
+      <%= form.label :industry, "行业", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.text_field :industry, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+    <div>
+      <%= form.label :published_at, "发布时间", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.datetime_local_field :published_at, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+    <div>
+      <%= form.label :deadline_at, "截止时间", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.datetime_local_field :deadline_at, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+    <div>
+      <%= form.label :status, "跟进状态", class: "mb-1.5 block text-sm font-semibold" %>
+      <%= form.select :status, [["新信息", "new"], ["跟进中", "tracking"], ["已报名", "applied"], ["已忽略", "ignored"], ["已截止", "expired"]], {}, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %>
+    </div>
+  </div>
+  <div class="flex justify-end gap-3 border-t border-slate-100 pt-5">
+    <%= link_to "取消", notice.persisted? ? tender_notice_path(notice) : tender_notices_path, class: "rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600" %>
+    <%= form.submit notice.persisted? ? "保存更新" : "登记信息", class: "cursor-pointer rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white" %>
+  </div>
+<% end %>

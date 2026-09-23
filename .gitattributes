@@ -1,0 +1,15 @@
+# See https://git-scm.com/docs/gitattributes for more about git attribute files.
+* text=auto
+
+# Mark the database schema as having been generated.
+db/schema.rb linguist-generated
+
+# Mark any vendored files as having been vendored.
+vendor/* linguist-vendored
+config/credentials/*.yml.enc diff=rails_credentials
+config/credentials.yml.enc diff=rails_credentials
+
+# Executable entrypoints and Linux service templates must not acquire CRLF.
+bin/* text eol=lf
+*.sh text eol=lf
+deploy/systemd/*.service text eol=lf

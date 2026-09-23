@@ -1,0 +1,17 @@
+<%= form_with model: [@analysis, @score], class: "mt-4 rounded-lg border border-slate-200 bg-white p-5", data: { controller: "score-preview" } do |f| %>
+  <%= render "shared/errors", record: @score %>
+  <div class="grid gap-4 lg:grid-cols-2">
+    <div class="lg:col-span-2"><%= f.label :criterion, "对应评分点", class: "block text-sm font-semibold" %><%= f.select :criterion, (@analysis.criteria + [@score.criterion]).compact.uniq.map { |c| [c,c] }, { prompt: "请选择" }, required: true, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+    <div><%= f.label :maximum, "该项满分", class: "block text-sm font-semibold" %><%= f.number_field :maximum, min: 0.01, max: 100, step: 0.01, required: true, data: { score_preview_target: "maximum", action: "input->score-preview#update" }, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+    <div><%= f.label :awarded, "该项自评分", class: "block text-sm font-semibold" %><%= f.number_field :awarded, min: 0, max: 100, step: 0.01, required: true, data: { score_preview_target: "awarded", action: "input->score-preview#update" }, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+    <p data-score-preview-target="feedback" aria-live="polite" class="text-sm text-cyan-800 lg:col-span-2">填写后显示得分比例，最终分值由服务端校验。</p>
+    <div class="lg:col-span-2"><%= f.label :scoring_rule, "招标评分标准原文（AI 模拟审核必填）", class: "block text-sm font-semibold" %><%= f.text_area :scoring_rule, rows: 3, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %><p class="mt-1 text-xs text-slate-500">填写真实得分条件、分档和扣分规则，不填写自己的预估分数。</p></div>
+    <div class="lg:col-span-2"><%= f.label :rationale, "评分规则、得分及扣分依据", class: "block text-sm font-semibold" %><%= f.text_area :rationale, rows: 3, required: true, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+    <div><%= f.label :project_document_id, "项目证明文件（或在分析页关联资料库原件）", class: "block text-sm font-semibold" %><%= f.collection_select :project_document_id, @documents, :id, :original_filename, { include_blank: "无项目文件 / 使用资料库引用" }, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+    <div><%= f.label :page_reference, "项目文件位置 / 页码", class: "block text-sm font-semibold" %><%= f.text_field :page_reference, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+    <div><label class="text-sm"><%= f.check_box :requires_evidence %> 此评分点要求证明原件</label><p class="mt-1 text-xs text-slate-500">未提供所需原件可保存草稿，但不能完成评分复核。</p></div>
+    <div><label class="text-sm"><%= f.check_box :active %> 启用并纳入当前汇总</label></div>
+    <div class="lg:col-span-2"><%= f.label :evidence_exception, "不要求原件时的规则依据（取消勾选时必填）", class: "block text-sm font-semibold" %><%= f.text_area :evidence_exception, rows: 2, class: "mt-1 w-full rounded-md border border-slate-300 p-2 text-sm" %></div>
+  </div>
+  <div class="mt-5 flex items-center gap-4"><%= f.submit "保存评分", class: "cursor-pointer rounded-md bg-slate-900 px-5 py-2 text-sm text-white" %><%= link_to "取消", @analysis, class: "text-sm text-slate-600" %></div>
+<% end %>

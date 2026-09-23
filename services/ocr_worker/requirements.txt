@@ -1,0 +1,11 @@
+fastapi==0.141.1
+starlette==1.6.0
+uvicorn[standard]==0.35.0
+python-multipart==0.0.31
+pymupdf==1.26.4
+pillow==12.3.0
+numpy==2.2.6
+easyocr==1.7.2
+opencv-python-headless==5.0.0.93
+python-docx==1.2.0
+openpyxl==3.1.5

@@ -1,0 +1,6 @@
+zh-CN:
+  activerecord:
+    attributes:
+      generated_document:
+        bid_analysis: 投标起草依据
+        review_note: 审批意见

@@ -1,0 +1,15 @@
+zh-CN:
+  activerecord:
+    models:
+      workflow_task: 审批任务
+      workflow_signature: 会签记录
+    attributes:
+      workflow_task:
+        record: 审批对象
+        stage: 流程阶段
+        assignee: 处理人
+        restart_reason: 重新发起原因
+        replaces_task: 原任务
+        workflow_signatures: 会签人员
+      workflow_signature:
+        user: 会签人

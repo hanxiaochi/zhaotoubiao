@@ -1,0 +1,2 @@
+<% content_for :title, "新建项目｜江苏东华 AI 工作平台" %><% content_for :page_title, "新建项目" %>
+<div class="mx-auto max-w-4xl"><div class="mb-6"><%= link_to "← 返回项目中心", projects_path, class: "text-sm font-semibold text-cyan-700" %><h1 class="mt-3 text-2xl font-bold">新建业务项目</h1><p class="mt-2 text-sm text-slate-500">项目创建后会自动将您设为负责人，并开始保留完整操作轨迹。</p></div><div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><%= render "form", project: @project %></div></div>

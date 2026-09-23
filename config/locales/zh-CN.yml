@@ -1,0 +1,63 @@
+zh-CN:
+  date:
+    formats:
+      default: "%Y-%m-%d"
+  time:
+    formats:
+      default: "%Y-%m-%d %H:%M"
+      short: "%m-%d %H:%M"
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "数据校验失败：%{errors}"
+    models:
+      user: "用户"
+      project: "项目"
+      asset: "资产"
+      claim: "债权申报"
+    attributes:
+      user:
+        name: "姓名"
+        email: "邮箱"
+        password: "密码"
+        password_confirmation: "确认密码"
+      project:
+        code: "项目编号"
+        name: "项目名称"
+        project_type: "业务类型"
+        status: "项目状态"
+        department: "所属部门"
+        start_date: "开始日期"
+        due_date: "截止日期"
+        description: "项目说明"
+      asset:
+        asset_code: "资产编号"
+        name: "资产名称"
+        category: "资产类别"
+        address: "坐落地址"
+        rights_no: "权证编号"
+        source_reference: "合同/来源编号"
+        description: "资产特征与来源说明"
+        change_reason: "修改原因或登记依据"
+        appraisal_org: "评估机构"
+        appraisal_value: "评估价值"
+        disposal_status: "处置状态"
+      claim:
+        creditor_name: "债权人名称"
+        unified_code: "统一社会信用代码"
+        contact_name: "联系人"
+        contact_phone: "联系电话"
+        claim_amount: "申报金额"
+        currency: "币种"
+        claimed_type: "申报债权性质"
+        summary: "事实与理由"
+  errors:
+    format: "%{attribute}%{message}"
+    messages:
+      blank: "不能为空"
+      taken: "已存在"
+      too_short: "长度不能少于%{count}个字符"
+      confirmation: "与确认值不一致"
+      inclusion: "不在允许范围内"
+      not_a_number: "必须是数字"
+      greater_than_or_equal_to: "必须大于或等于%{count}"

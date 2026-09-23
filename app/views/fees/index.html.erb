@@ -1,0 +1,23 @@
+<% content_for :page_title, "完整收费台账" %>
+<%= link_to "返回项目", @project, class: "text-sm font-semibold text-cyan-700" %>
+<div class="mt-3 flex items-center justify-between"><div><h1 class="text-2xl font-bold">完整收费台账</h1><p class="mt-1 text-sm text-slate-500"><%= @project.name %> · 共 <%= @total %> 笔</p></div><% if policy(@project).update? %><%= link_to "新增收费", new_project_fee_path(@project), class: "rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white" %><% end %></div>
+<%= form_with url: project_fees_path(@project), method: :get, class: "my-5 flex flex-wrap items-end gap-3" do |form| %>
+  <div><%= form.label :q, "费用说明", class: "block text-xs text-slate-500" %><%= form.search_field :q, value: params[:q], class: "rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <div><%= form.label :fee_type, "费用类型", class: "block text-xs text-slate-500" %><%= form.select :fee_type, options_for_select(Fee::TYPE_LABELS.map { |key, label| [label, key] }, params[:fee_type]), { include_blank: "全部类型" }, class: "rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <div><%= form.label :invoice_status, "开票状态", class: "block text-xs text-slate-500" %><%= form.select :invoice_status, options_for_select(Fee::INVOICE_LABELS.map { |key, label| [label, key] }, params[:invoice_status]), { include_blank: "全部开票状态" }, class: "rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <div><%= form.label :payment_status, "收款状态", class: "block text-xs text-slate-500" %><%= form.select :payment_status, options_for_select(%w[unpaid partial paid overpaid].map { |key| [status_label(key), key] }, params[:payment_status]), { include_blank: "全部收款状态" }, class: "rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <%= form.submit "查询", class: "cursor-pointer rounded-md bg-slate-800 px-4 py-2 text-sm text-white" %><%= link_to "重置", project_fees_path(@project), class: "px-3 py-2 text-sm text-slate-600" %>
+<% end %>
+<div class="mb-5 grid grid-cols-4 gap-3"><% @totals.each do |label, value| %><div class="rounded-lg border border-slate-200 bg-white p-4"><p class="text-xs text-slate-500">筛选结果<%= label %></p><p class="mt-2 text-xl font-bold"><%= money(value) %></p></div><% end %></div>
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white"><table class="ledger-table">
+  <caption class="sr-only">收费台账第 <%= @page %> 页；金额单位人民币元</caption>
+  <thead><tr><th scope="col">类型 / 说明</th><th scope="col" class="numeric">应收</th><th scope="col" class="numeric">已收</th><th scope="col" class="numeric">未收 / 溢收</th><th scope="col">收款 / 开票</th><th scope="col">日期 / 登记人</th><th scope="col">操作</th></tr></thead>
+  <tbody><% @fees.each do |fee| %><tr>
+    <td><p class="font-semibold"><%= Fee::TYPE_LABELS.fetch(fee.fee_type) %></p><p class="mt-1 text-xs text-slate-500"><%= truncate(fee.note.presence || "暂无说明", length: 50) %></p></td>
+    <td class="numeric"><%= money(fee.receivable) %></td><td class="numeric"><%= money(fee.received) %></td><td class="numeric"><%= money(fee.outstanding) %><p class="text-xs text-amber-700">溢收 <%= money(fee.overpaid) %></p></td>
+    <td><%= status_badge(fee.payment_status) %><p class="mt-1 text-xs text-slate-500"><%= Fee::INVOICE_LABELS.fetch(fee.invoice_status, fee.invoice_status) %></p></td>
+    <td class="text-xs text-slate-500"><%= fee.received_on || "未登记收款日期" %><p class="mt-1"><%= fee.created_by.name %></p></td>
+    <td class="whitespace-nowrap text-sm font-semibold text-cyan-700"><%= link_to "查看", project_fee_path(@project, fee) %><% if policy(fee).update? %> · <%= link_to "编辑", edit_project_fee_path(@project, fee) %><% end %></td>
+  </tr><% end %><% if @fees.empty? %><tr><td colspan="7" class="text-center text-slate-500">暂无符合筛选条件的收费记录。</td></tr><% end %></tbody>
+</table></div>
+<nav aria-label="收费分页" class="mt-4 flex items-center justify-between text-sm"><span class="text-slate-500">共 <%= @total %> 笔 · 第 <%= @page %> 页 · 汇总包含全部筛选结果，未收与溢收不抵销</span><div class="flex gap-4"><% if @page > 1 %><%= link_to "上一页", project_fees_path(@project, request.query_parameters.merge(page: @page - 1)) %><% end %><% if @page * 30 < @total %><%= link_to "下一页", project_fees_path(@project, request.query_parameters.merge(page: @page + 1)) %><% end %></div></nav>

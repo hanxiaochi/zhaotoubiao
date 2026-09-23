@@ -1,0 +1,8 @@
+<div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+  <%= label_tag "generated_document_bid_analysis_public_id", "关联投标分析（仅技术标 / 商务标）", class: "mb-2 block text-sm font-semibold" %>
+  <%= select_tag "generated_document[bid_analysis_public_id]", options_for_select(document.project.bid_analyses.order(created_at: :desc).map { |analysis| ["#{l(analysis.created_at, format: :short)} · #{analysis.criteria.first || '未填写评分点'}", analysis.public_id] }, document.bid_analysis&.public_id), include_blank: "不关联：仅依据当前正文和项目文件", class: "w-full rounded-md border border-slate-300 px-3 py-2" %>
+  <p class="mt-2 text-xs leading-6 text-slate-500">关联后保存评分点、规则、提纲及资质 / 案例引用快照。过期或无效证明不能用于 AI 声明事实。更换或刷新依据不会自动重写正文，请逐项核对。</p>
+  <% if document.persisted? && document.bid_analysis %>
+    <label class="mt-3 flex items-center gap-2 text-sm"><%= check_box_tag "generated_document[refresh_bid_basis]", "1", false %> 我已核对正文，保存时刷新为当前投标依据</label>
+  <% end %>
+</div>

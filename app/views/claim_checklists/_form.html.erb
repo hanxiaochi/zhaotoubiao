@@ -1,0 +1,10 @@
+<%= form_with model: [project, checklist], class: "space-y-6" do |form| %>
+  <%= render "shared/errors", record: checklist %>
+  <div class="grid gap-5 md:grid-cols-2">
+    <div><%= form.label :name, "清单名称", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :name, required: true, placeholder: "例如：普通债权标准清单", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :claim_type, "适用债权类型", class: "mb-1.5 block text-sm font-semibold" %><%= form.select :claim_type, ApplicationHelper::CLAIM_TYPE_LABELS.map { |value, label| [label, value] }, {}, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %><p class="mt-1.5 text-xs text-slate-500">“待认定”可作为通用模板。</p></div>
+  </div>
+  <div><%= label_tag "claim_checklist_material_types_text", "所需材料（每行一项）", class: "mb-1.5 block text-sm font-semibold" %><%= text_area_tag "claim_checklist[material_types_text]", checklist.material_types.join("\n"), id: "claim_checklist_material_types_text", rows: 10, required: true, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %><p class="mt-1.5 text-xs text-slate-500">新登记债权会按所选模板生成材料核验项；已登记债权不会被追溯改写。</p></div>
+  <div class="flex items-center gap-3"><%= form.check_box :active, class: "size-4 rounded" %><%= form.label :active, "启用此清单模板", class: "text-sm font-semibold" %></div>
+  <div class="flex justify-end gap-3 border-t border-slate-100 pt-5"><%= link_to "取消", project_path(project), class: "rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600" %><%= form.submit checklist.persisted? ? "保存模板" : "创建模板", class: "cursor-pointer rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800" %></div>
+<% end %>

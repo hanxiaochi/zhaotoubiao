@@ -1,0 +1,12 @@
+<%= form_with model: [project, milestone], class: "space-y-6" do |form| %>
+  <%= render "shared/errors", record: milestone %>
+  <div class="grid gap-5 md:grid-cols-2">
+    <div><%= form.label :title, "节点名称", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :title, required: true, placeholder: "例如：发布招标公告", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :stage, "项目阶段", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_field :stage, required: true, placeholder: "立项、文件编制、公告、评审、归档等", class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :status, "完成状态", class: "mb-1.5 block text-sm font-semibold" %><%= form.select :status, ProjectMilestone::STATUSES.map { |value| [status_label(value), value] }, {}, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :due_on, "计划完成日期", class: "mb-1.5 block text-sm font-semibold" %><%= form.date_field :due_on, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+    <div><%= form.label :owner_id, "节点负责人", class: "mb-1.5 block text-sm font-semibold" %><%= form.collection_select :owner_id, @owners, :id, :name, { include_blank: "暂不分配" }, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+  </div>
+  <div><%= form.label :note, "节点说明/成果要求", class: "mb-1.5 block text-sm font-semibold" %><%= form.text_area :note, rows: 5, class: "w-full rounded-xl border border-slate-300 px-3.5 py-2.5" %></div>
+  <div class="flex justify-end gap-3 border-t border-slate-100 pt-5"><%= link_to "取消", project_path(project), class: "rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600" %><%= form.submit milestone.persisted? ? "保存节点" : "新增节点", class: "cursor-pointer rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800" %></div>
+<% end %>

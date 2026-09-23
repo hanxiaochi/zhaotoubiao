@@ -1,0 +1,25 @@
+<% content_for :title, "项目中心｜江苏东华 AI 工作平台" %>
+<% content_for :page_title, "项目中心" %>
+
+<div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h1 class="text-2xl font-bold tracking-tight">项目中心</h1><p class="mt-2 text-sm text-slate-500">统一管理破产、招标代理、投标、审计与评估项目。</p></div><%= link_to "新建项目", new_project_path, class: "inline-flex items-center justify-center rounded-md bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800" if policy(Project).create? %></div>
+
+<%= form_with url: projects_path, method: :get, class: "project-filters" do |form| %>
+  <%= form.search_field :q, value: params[:q], placeholder: "搜索项目名称或编号", aria: { label: "搜索项目名称或编号" }, class: "rounded-md border border-slate-300 px-3.5 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20" %>
+  <%= form.select :type, options_for_select([["全部业务类型", ""]] + ApplicationHelper::PROJECT_TYPE_LABELS.map { |value, label| [label, value] }, params[:type]), {}, aria: { label: "业务类型" }, class: "rounded-md border border-slate-300 px-3.5 py-2.5 text-sm" %>
+  <%= form.submit "查询", class: "cursor-pointer rounded-md bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-950" %>
+  <div><%= form.label :department_id, "部门", class: "block text-xs text-slate-500" %><%= form.select :department_id, options_from_collection_for_select(@departments, :id, :name, params[:department_id]), { include_blank: "全部部门" }, class: "w-full rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <div><%= form.label :owner_id, "负责人", class: "block text-xs text-slate-500" %><%= form.select :owner_id, options_from_collection_for_select(@owners, :id, :name, params[:owner_id]), { include_blank: "全部负责人" }, class: "w-full rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <div><%= form.label :status, "阶段", class: "block text-xs text-slate-500" %><%= form.select :status, options_for_select([["全部阶段", ""]] + Project::STATUSES.map { |value| [status_label(value), value] }, params[:status]), {}, class: "w-full rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <div><%= form.label :due_from, "截止日期起", class: "block text-xs text-slate-500" %><%= form.date_field :due_from, value: params[:due_from], class: "w-full rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+  <div><%= form.label :due_to, "截止日期止", class: "block text-xs text-slate-500" %><%= form.date_field :due_to, value: params[:due_to], class: "w-full rounded-md border border-slate-300 px-3 py-2 text-sm" %></div>
+<% end %>
+
+<p class="mt-5 text-sm text-slate-500">共 <%= @total %> 项 · 第 <%= @page %> 页</p>
+<div class="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+  <% if @projects.any? %>
+    <div class="overflow-x-auto"><table class="min-w-full divide-y divide-slate-200 text-sm"><thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500"><tr><th class="px-4 py-3">项目</th><th class="px-4 py-3">业务类型</th><th class="px-4 py-3">部门 / 负责人</th><th class="px-4 py-3">进度</th><th class="px-4 py-3 text-right">操作</th></tr></thead><tbody class="divide-y divide-slate-100">
+      <% @projects.each do |project| %><tr class="hover:bg-slate-50"><td class="px-4 py-3"><p class="font-semibold text-slate-900"><%= project.name %></p><p class="mt-1 text-xs text-slate-500"><%= project.code %></p></td><td class="px-4 py-3 text-slate-600"><%= project_type_label(project.project_type) %></td><td class="px-4 py-3 text-slate-600"><%= project.department&.name || "未分配" %><p class="mt-1 text-xs text-slate-400"><%= project.owner&.name || "—" %></p></td><td class="px-4 py-3"><%= status_badge(project.status) %></td><td class="px-4 py-3 text-right"><%= link_to "进入项目", project, class: "font-semibold text-cyan-700 hover:text-cyan-900" %></td></tr><% end %>
+    </tbody></table></div>
+  <% else %><div class="px-6 py-16 text-center"><p class="font-semibold">没有符合条件的项目</p><p class="mt-2 text-sm text-slate-500">调整查询条件，或创建一个新项目。</p></div><% end %>
+</div>
+<nav aria-label="项目分页" class="mt-4 flex justify-end gap-4 text-sm"><% if @page > 1 %><%= link_to "上一页", projects_path(request.query_parameters.merge(page: @page - 1)) %><% end %><% if @page * 30 < @total %><%= link_to "下一页", projects_path(request.query_parameters.merge(page: @page + 1)) %><% end %></nav>

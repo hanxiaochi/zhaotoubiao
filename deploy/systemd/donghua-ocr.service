@@ -1,0 +1,28 @@
+[Unit]
+Description=Donghua Private OCR Worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=donghua
+Group=donghua
+WorkingDirectory=/srv/donghua/current/services/ocr_worker
+Environment=OCR_MODEL_DIR=/srv/donghua/shared/ocr-models
+EnvironmentFile=/etc/donghua/ocr.env
+ExecStart=/srv/donghua/shared/ocr-venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8100 --limit-concurrency 4
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=330
+KillMode=mixed
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/donghua/shared
+MemoryMax=6G
+TasksMax=256
+
+[Install]
+WantedBy=multi-user.target

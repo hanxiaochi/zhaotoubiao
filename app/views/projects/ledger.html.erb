@@ -1,0 +1,51 @@
+<% content_for :page_title, @ledger_title %>
+<%= link_to "返回项目", @project, class: "text-sm font-semibold text-cyan-700" %>
+<h1 class="mt-2 text-2xl font-bold"><%= @ledger_title %></h1>
+<p class="mt-1 text-sm text-slate-500"><%= @project.name %> · 共 <%= @total %> 条，包含历史归档记录</p>
+<%= form_with url: ledger_project_path(@project), method: :get, class: "my-4 flex items-center gap-2" do |form| %>
+  <%= form.hidden_field :kind, value: @ledger_kind %>
+  <%= form.search_field :q, value: params[:q], placeholder: "搜索名称", aria: { label: "搜索名称" }, class: "w-80 rounded-md border border-slate-300 px-3 py-2 text-sm" %>
+  <%= form.submit "查询", class: "cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm text-white" %>
+  <%= link_to "重置", ledger_project_path(@project, kind: @ledger_kind), class: "px-3 py-2 text-sm text-slate-600" %>
+<% end %>
+<div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+  <table class="ledger-table">
+    <caption class="sr-only"><%= @ledger_title %>，第 <%= @page %> 页</caption>
+    <thead><tr><th scope="col">名称 / 编号</th><th scope="col">业务分类</th><th scope="col" class="numeric"><%= @ledger_kind.in?(%w[claims assets]) ? "金额" : "资料信息" %></th><th scope="col">状态</th><th scope="col">创建时间</th><th scope="col">操作</th></tr></thead>
+    <tbody>
+      <% @records.each do |record| %>
+        <tr>
+          <td><p class="font-semibold"><%= @ledger_kind == "bids" ? "评分点与风险分析" : record.public_send(@name_field) %></p><% if @ledger_kind.in?(%w[assets bids]) %><p class="mt-1 text-xs text-slate-500"><%= @ledger_kind == "assets" ? record.asset_code : record.public_id %></p><% end %></td>
+          <td class="text-slate-600"><%= case @ledger_kind
+            when "claims" then claim_type_label(record.claimed_type)
+            when "assets", "documents", "intake" then record.category
+            when "drafts" then record.kind
+            when "bids" then "#{record.criteria.size} 个评分点"
+            end %></td>
+          <td class="numeric"><%= case @ledger_kind
+            when "claims" then money(record.claim_amount, currency: record.currency)
+            when "assets" then money(record.appraisal_value)
+            when "documents" then number_to_human_size(record.byte_size)
+            when "intake" then "#{record.attachments.size} 个附件"
+            when "bids" then truncate(record.criteria.join("；"), length: 80)
+            else "—"
+            end %></td>
+          <td><%= status_badge(record.respond_to?(:status) ? record.status : record.disposal_status) %></td>
+          <td class="whitespace-nowrap text-xs text-slate-500"><%= l(record.created_at, format: :short) %></td>
+          <td class="whitespace-nowrap text-sm font-semibold text-cyan-700">
+            <% if @ledger_kind.in?(%w[claims drafts bids]) %><%= link_to "查看", record %>
+            <% elsif @ledger_kind == "documents" %><%= link_to "查看", project_project_document_path(@project, record) %>
+            <% elsif @ledger_kind == "assets" %><%= link_to "查看", project_asset_path(@project, record) %><% if policy(record).update? %> · <%= link_to "维护", edit_project_asset_path(@project, record) %><% end %>
+            <% elsif @ledger_kind == "intake" %><%= link_to "查看", project_intake_item_path(@project, record) %><% if policy(record).update? %> · <%= link_to "维护", edit_project_intake_item_path(@project, record) %><% end %>
+            <% else %><span class="font-normal text-slate-400">只读</span><% end %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @records.empty? %><tr><td colspan="6" class="text-center text-slate-500">没有符合条件的记录，请调整搜索条件。</td></tr><% end %>
+    </tbody>
+  </table>
+</div>
+<nav aria-label="台账分页" class="mt-4 flex items-center justify-between text-sm">
+  <span class="text-slate-500">共 <%= @total %> 条 · 第 <%= @page %> 页</span>
+  <div class="flex gap-4"><% if @page > 1 %><%= link_to "上一页", ledger_project_path(@project, kind: @ledger_kind, q: params[:q], page: @page - 1) %><% end %><% if @page * 30 < @total %><%= link_to "下一页", ledger_project_path(@project, kind: @ledger_kind, q: params[:q], page: @page + 1) %><% end %></div>
+</nav>

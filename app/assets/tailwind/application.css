@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@layer base {
+  body { font-family: "Inter", "Segoe UI", "Microsoft YaHei", sans-serif; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 3px solid #22d3ee; outline-offset: 3px; }
+  input, select, textarea { transition: border-color .18s, box-shadow .18s; }
+  input:focus, select:focus, textarea:focus { border-color: #0891b2; box-shadow: 0 0 0 3px #06b6d41a; }
+  [hidden] { display: none !important; }
+}
+
+.workbench-shell { background: radial-gradient(ellipse at 85% 0%, #e0f2fe80, transparent 45%), #f5f7fb; }
+.workbench-confirm { position: fixed; inset: 0; margin: auto; width: min(480px, calc(100vw - 48px)); max-height: calc(100vh - 48px); overflow: auto; padding: 0; border: 1px solid #cbd5e1; border-radius: 12px; background: white; box-shadow: 0 24px 80px #0f172a40; }
+.workbench-confirm::backdrop { background: #0f172a70; backdrop-filter: blur(3px); }
+.workbench-sidebar { background: linear-gradient(165deg, #142c46, #0a1729 65%); }
+.workbench-main { animation: page-arrive .24s ease-out; }
+.workbench-main section { transition: box-shadow .2s, border-color .2s; }
+.workbench-main section:hover { border-color: #cbd5e1; box-shadow: 0 8px 28px -20px #12334b60; }
+.workbench-main h1 { letter-spacing: -.035em; }
+.workspace-tabs { display: flex; gap: 1.5rem; overflow-x: auto; border-bottom: 1px solid #cbd5e1; margin: 1rem 0; }
+.workspace-tabs button { flex: 0 0 auto; border-bottom: 2px solid transparent; padding: .7rem .25rem; color: #526478; font-size: .875rem; font-weight: 600; cursor: pointer; transition: color .18s, border-color .18s; }
+.workspace-tabs button[aria-pressed="true"] { color: #0e7490; border-bottom-color: #0891b2; }
+.workspace-tabs button:hover { color: #0e7490; }
+.workspace-filtered .xl\:grid-cols-\[minmax\(0\,1\.5fr\)_minmax\(320px\,0\.75fr\)\] { grid-template-columns: 1fr; }
+.workspace-filtered .lg\:grid-cols-2 { grid-template-columns: 1fr; }
+.turbo-progress-bar { height: 3px; background: linear-gradient(90deg, #06b6d4, #6366f1); }
+form[aria-busy="true"] { opacity: .75; transition: opacity .2s; }
+form[aria-busy="true"] [type="submit"] { cursor: progress; }
+.status-pulse { width: .45rem; height: .45rem; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 4px #10b98116; }
+.desktop-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; padding: .65rem .8rem; border: 1px solid #e2e8f0; border-radius: .4rem; background: white; font-size: .8125rem; }
+.toolbar-label { color: #64748b; margin-right: .5rem; padding-right: 1rem; border-right: 1px solid #e2e8f0; }
+.desktop-toolbar a { padding: .35rem .7rem; border: 1px solid #cbd5e1; border-radius: .3rem; color: #334155; transition: background .15s; }
+.desktop-toolbar a:hover { background: #ecfeff; border-color: #0891b2; color: #0e7490; }
+.project-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: .75rem; margin-top: 1.25rem; padding: 1rem; background: white; border: 1px solid #e2e8f0; border-radius: .5rem; }
+.ledger-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: .875rem; }
+.ledger-table th { background: #f8fafc; color: #64748b; text-align: left; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.ledger-table th, .ledger-table td { padding: .75rem 1rem; border-bottom: 1px solid #e2e8f0; }
+.ledger-table tbody tr:hover { background: #f0f9ff; }
+.ledger-table .numeric { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.workbench-main progress { appearance: none; border: 0; border-radius: 4px; overflow: hidden; background: #e2e8f0; }
+.workbench-main progress::-webkit-progress-bar { background: #e2e8f0; }
+.workbench-main progress::-webkit-progress-value { background: #0e7490; border-radius: 4px; }
+.workbench-main progress::-moz-progress-bar { background: #0e7490; border-radius: 4px; }
+@media (min-width: 1024px) {
+  .project-filters { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .project-filters > input[type="search"] { grid-column: span 3; }
+}
+@keyframes page-arrive { from { opacity: .6; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
