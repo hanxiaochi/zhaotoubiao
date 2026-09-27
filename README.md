@@ -1,5 +1,7 @@
 # 江苏东华会计师事务所 AI 工作平台
 
+> **English portfolio overview:** [Enterprise AI Workflow and Audit Platform](docs/PORTFOLIO_CASE_EN.md) - a concise buyer-facing case covering the business problem, implemented system, architecture, verification evidence and production boundaries.
+
 ## GitHub 源码版本
 
 本仓库包含主项目完整源码、测试及最新所有者云部署配置，不是加密封装版。当前源码快照上传于 2026-09-23；不含真实 API Key、私有环境配置、数据库、客户附件或独立 CloudBase 部署副本。
